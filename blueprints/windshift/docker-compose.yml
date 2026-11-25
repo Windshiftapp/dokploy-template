@@ -2,12 +2,20 @@ version: "3.8"
 
 services:
   windshift:
-    image: ghcr.io/windshiftapp/windshift:v0.8.8
+    image: ghcr.io/windshiftapp/windshift:0.9.6
     restart: unless-stopped
     environment:
       - BASE_URL=https://${DOMAIN}
       - PORT=8080
       - USE_PROXY=true
+      # The blueprint template sets PROXY_TRUST_MODE=strict and requires the
+      # proxy address for fresh installs. The "legacy" fallback below keeps an
+      # existing installation on its current behavior when only this manifest is
+      # refreshed. Strict trusts only loopback and ADDITIONAL_PROXIES; see
+      # deploy/proxy-trust.md in the Windshift repository. Diagnostics ->
+      # Proxy trust reports an unlisted proxy.
+      - PROXY_TRUST_MODE=${PROXY_TRUST_MODE:-legacy}
+      - ADDITIONAL_PROXIES=${ADDITIONAL_PROXIES:-}
       - SSO_SECRET=${SSO_SECRET}
       - ATTACHMENT_PATH=/data/attachments
       - DB_TYPE=postgres

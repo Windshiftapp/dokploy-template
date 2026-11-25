@@ -2,10 +2,19 @@
 main_domain = "${domain}"
 sso_secret = "${hash:64}"
 db_password = "${password:32}"
+# REQUIRED: the address Dokploy's Traefik uses to reach Windshift, as seen by
+# Windshift. Strict proxy trust trusts only loopback and this address, so it must
+# be set to the real proxy source; there is no safe guessed default. Find it on
+# Admin -> Diagnostics -> Proxy trust after the first deploy (the "Unlisted
+# proxies" table names the peer that sent forwarding headers). Leave empty only
+# when a loopback sidecar fronts Windshift.
+proxy_address = ""
 
 [config]
 env = [
   "DOMAIN=${main_domain}",
+  "PROXY_TRUST_MODE=strict",
+  "ADDITIONAL_PROXIES=${proxy_address}",
   "SSO_SECRET=${sso_secret}",
   "POSTGRES_USER=windshift",
   "POSTGRES_PASSWORD=${db_password}",
